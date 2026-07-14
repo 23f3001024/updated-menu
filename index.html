@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The House of Chilli &amp; Curry — Menu</title>
+<style>
+  :root {
+    --cream: #f7f2e7;
+    --cream-2: #fbf8f0;
+    --paper: #fdfbf5;
+    --red: #c0392b;
+    --red-deep: #9c2a1f;
+    --red-soft: #e0503f;
+    --ink: #2b2622;
+    --muted: #8a8073;
+    --line: #e6ddca;
+    --green: #4c8b3a;
+    --gold: #c99a3a;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background:
+      radial-gradient(900px 500px at 50% -5%, #fffdf7 0%, var(--cream) 60%),
+      var(--cream);
+    color: var(--ink);
+    font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 18px 90px; }
+
+  /* ---------- Decorative framed header ---------- */
+  header {
+    position: relative;
+    text-align: center;
+    margin: 26px auto 0;
+    max-width: 900px;
+    padding: 54px 20px 46px;
+    background: var(--paper);
+    border: 2px solid var(--red);
+    border-radius: 22px;
+    overflow: hidden;
+  }
+  header::before, header::after {
+    content: "✿";
+    position: absolute;
+    font-size: 26px;
+    color: var(--red-soft);
+    opacity: 0.85;
+  }
+  header::before { top: 14px; left: 18px; }
+  header::after { top: 14px; right: 18px; }
+
+  .corner { position: absolute; bottom: 14px; font-size: 26px; color: var(--red-soft); opacity: 0.85; }
+  .corner.l { left: 18px; }
+  .corner.r { right: 18px; }
+
+  .logo {
+    width: 92px; height: 92px;
+    margin: 0 auto 18px;
+    display: grid; place-items: center;
+    animation: pop 0.7s cubic-bezier(.2,.9,.3,1.3) both;
+  }
+  .logo svg { width: 100%; height: 100%; }
+
+  .brand-top, .brand-bottom {
+    font-family: "Georgia", serif;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .brand-top { font-size: clamp(15px, 3vw, 20px); opacity: 0; animation: fade-up .7s ease forwards .15s; }
+  .brand-mid {
+    font-family: "Georgia", serif;
+    font-size: clamp(30px, 7vw, 52px);
+    font-weight: 800;
+    color: var(--red);
+    letter-spacing: 0.03em;
+    margin: 6px 0;
+    opacity: 0; animation: fade-up .7s ease forwards .28s;
+  }
+  .diamond { color: var(--gold); font-size: 14px; margin: 10px 0; opacity: 0; animation: fade-up .7s ease forwards .4s; }
+  .tagline {
+    font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--muted); opacity: 0; animation: fade-up .7s ease forwards .5s;
+  }
+
+  /* ---------- Sticky filters ---------- */
+  .filters {
+    position: sticky; top: 0; z-index: 30;
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    padding: 14px 8px; margin: 6px 0 26px;
+    background: linear-gradient(180deg, var(--cream) 68%, transparent);
+    backdrop-filter: blur(4px);
+  }
+  .chip {
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--ink); background: var(--paper);
+    border: 1.5px solid var(--line); padding: 8px 15px; border-radius: 999px;
+    cursor: pointer; transition: all .22s ease; user-select: none;
+    display: inline-flex; align-items: center; gap: 7px;
+    white-space: nowrap; -webkit-tap-highlight-color: transparent;
+  }
+  .chip:hover { border-color: var(--red); transform: translateY(-1px); }
+  .chip.active { color: #fff; background: var(--red); border-color: var(--red); box-shadow: 0 6px 16px -6px rgba(192,57,43,.6); }
+  .dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .dot.v { background: #fff; border: 2px solid var(--green); position: relative; }
+  .dot.v::after { content:""; position:absolute; inset:2px; border-radius:1px; background: var(--green); }
+  .dot.nv { background: #fff; border: 2px solid var(--red); position: relative; }
+  .dot.nv::after { content:""; position:absolute; inset:2px; border-radius:1px; background: var(--red); }
+  .chip.active .dot.v, .chip.active .dot.nv { border-color: #fff; }
+  .chip.active .dot.v::after { background:#fff; }
+  .chip.active .dot.nv::after { background:#fff; }
+
+  /* ---------- Sections ---------- */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    display: flex; align-items: center; gap: 12px;
+    font-size: clamp(18px, 4vw, 24px); font-weight: 800; letter-spacing: 0.02em;
+    color: var(--ink); text-transform: uppercase;
+    padding-bottom: 12px; margin-bottom: 6px;
+    border-bottom: 2px solid var(--line);
+  }
+  .section-title .ico { font-size: 22px; }
+  .section-title .rupee {
+    margin-left: auto; font-family: Georgia, serif; font-weight: 700;
+    color: var(--red); font-size: 18px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  /* ---------- Items ---------- */
+  .item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 12px; border-radius: var(--radius);
+    border: 1px solid transparent;
+    transition: background .25s ease, border-color .25s ease, transform .25s ease;
+    animation: fade-in .45s ease both;
+  }
+  .item:hover { background: var(--cream-2); border-color: var(--line); transform: translateX(3px); }
+  .item.hide { display: none; }
+
+  .mark {
+    flex: 0 0 auto; width: 15px; height: 15px; border-radius: 3px;
+    margin-top: 5px; position: relative; background:#fff;
+  }
+  .mark.v { border: 2px solid var(--green); }
+  .mark.v::after { content:""; position:absolute; inset:3px; border-radius:50%; background: var(--green); }
+  .mark.nv { border: 2px solid var(--red); }
+  .mark.nv::after { content:""; position:absolute; inset:3px; border-radius:50%; background: var(--red); }
+
+  .item-body { flex: 1; min-width: 0; }
+  .item-head { display: flex; align-items: baseline; gap: 10px; }
+  .item-name { font-size: 16px; font-weight: 600; color: var(--ink); }
+  .item-name .opt { color: var(--muted); font-weight: 500; }
+  .dots { flex: 1; border-bottom: 2px dotted var(--line); transform: translateY(-4px); min-width: 18px; }
+  .price { font-family: Georgia, serif; font-weight: 700; color: var(--red-deep); white-space: nowrap; font-size: 15px; }
+  .price .multi { color: var(--muted); font-weight: 600; font-size: 13.5px; }
+  .desc { color: var(--muted); font-size: 13.5px; font-style: italic; margin-top: 4px; line-height: 1.45; }
+  .chef {
+    display:inline-block; margin-left:8px; font-size:9px; font-style:normal; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--gold); border:1px solid rgba(201,154,58,.5);
+    border-radius:999px; padding:2px 7px; vertical-align:middle; font-weight:700;
+  }
+
+  .empty { display:none; text-align:center; color:var(--muted); font-style:italic; padding:50px 0; }
+
+  /* ---------- Contact / Zomato footer ---------- */
+  .contact {
+    margin-top: 20px; background: var(--paper); border: 2px solid var(--red);
+    border-radius: 22px; padding: 30px 24px; text-align: center; position: relative;
+  }
+  .contact h3 { color: var(--red); font-family: Georgia, serif; font-size: 22px; letter-spacing:.02em; }
+  .zomato {
+    display:inline-block; margin: 14px 0 20px; background:#e23744; color:#fff;
+    font-weight:700; letter-spacing:.05em; padding:11px 26px; border-radius:999px;
+    text-decoration:none; box-shadow:0 8px 20px -8px rgba(226,55,68,.7); transition: transform .2s ease;
+  }
+  .zomato:hover { transform: translateY(-2px); }
+  .contact-grid {
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 18px;
+    margin-top: 8px; text-align:center;
+  }
+  .contact-grid .cell strong { display:block; color:var(--red); font-size:11px; letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px; }
+  .contact-grid .cell span { color:var(--ink); font-size:14px; line-height:1.5; }
+  .fineprint { margin-top: 22px; color: var(--muted); font-size: 12px; letter-spacing:.08em; }
+
+  @keyframes fade-up { from { opacity:0; transform: translateY(14px);} to {opacity:1; transform:none;} }
+  @keyframes fade-in { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+  @keyframes pop { from { opacity:0; transform: scale(.6) rotate(-8deg);} to {opacity:1; transform:none;} }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 680px) {
+    /* Swipeable filter bar instead of many wrapped rows */
+    .filters {
+      flex-wrap: nowrap; justify-content: flex-start;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      padding: 12px 16px; margin: 6px -18px 22px;
+      scrollbar-width: none;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+              mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .chip { scroll-snap-align: start; flex: 0 0 auto; }
+  }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 0 14px 70px; }
+    header { padding: 40px 16px 34px; border-radius: 18px; margin-top: 16px; }
+    .logo { width: 76px; height: 76px; }
+
+    /* Stack price beneath name; drop the dotted leader so nothing collides */
+    .item { padding: 13px 10px; gap: 11px; }
+    .item-head { flex-wrap: wrap; gap: 2px 10px; }
+    .item-name { flex: 1 1 auto; font-size: 15px; }
+    .dots { display: none; }
+    .price {
+      flex: 0 0 auto; margin-left: auto; align-self: flex-start;
+      font-size: 14.5px;
+    }
+    .price .multi { font-size: 13px; }
+    .desc { font-size: 12.5px; }
+    .chef { display: inline-block; margin: 4px 0 0 0; }
+
+    .section-title { font-size: 18px; }
+    .contact { padding: 26px 18px; }
+    .contact-grid { gap: 20px; }
+  }
+
+  @media (hover: none) {
+    /* Touch devices: no sticky hover translate that can feel jumpy */
+    .item:hover { transform: none; }
+    .chip:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="corner l">✿</span>
+      <span class="corner r">✿</span>
+      <div class="logo" aria-label="Chilli and curry bowl logo">
+        <svg viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="70" rx="30" ry="8" fill="#f0d9b8"/>
+          <path d="M20 55 Q50 92 80 55 Z" fill="#c0392b"/>
+          <path d="M20 55 Q50 88 80 55" fill="#9c2a1f"/>
+          <ellipse cx="50" cy="55" rx="30" ry="9" fill="#e0503f"/>
+          <ellipse cx="50" cy="55" rx="30" ry="9" fill="none" stroke="#9c2a1f" stroke-width="2"/>
+          <!-- chilli -->
+          <path d="M44 40 Q56 30 68 34 Q60 46 46 52 Q42 46 44 40 Z" fill="#c0392b"/>
+          <path d="M66 33 Q70 26 74 27" stroke="#4c8b3a" stroke-width="3" stroke-linecap="round"/>
+          <!-- steam -->
+          <path d="M40 30 q-4 -6 0 -12" stroke="#c99a3a" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/>
+          <path d="M60 30 q4 -6 0 -12" stroke="#c99a3a" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/>
+        </svg>
+      </div>
+      <div class="brand-top">THE HOUSE OF</div>
+      <div class="brand-mid">CHILLI &amp; CURRY</div>
+      <div class="diamond">◆</div>
+      <div class="tagline">Bold Flavors · Warm Memories</div>
+    </header>
+
+    <nav class="filters" id="filters">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="veg"><span class="dot v"></span>Veg</button>
+      <button class="chip" data-filter="nonveg"><span class="dot nv"></span>Non-Veg</button>
+      <button class="chip" data-filter="cat:starter">Starters</button>
+      <button class="chip" data-filter="cat:mains">Mains</button>
+      <button class="chip" data-filter="cat:combos">Combos</button>
+      <button class="chip" data-filter="cat:rice">Rice / Noodles</button>
+      <button class="chip" data-filter="cat:bites">Quick Bites</button>
+      <button class="chip" data-filter="cat:beverages">Beverages</button>
+      <button class="chip" data-filter="cat:desserts">Desserts</button>
+    </nav>
+
+    <div id="menu"></div>
+    <p class="empty" id="empty">Nothing here matches that filter — try another.</p>
+
+    <section class="contact">
+      <h3>Now Available on</h3>
+      <a class="zomato" href="#" onclick="return false;">Order on Zomato</a>
+      <div class="contact-grid">
+        <div class="cell">
+          <strong>Call to Order</strong>
+          <span>7979072776<br />9987710956</span>
+        </div>
+        <div class="cell">
+          <strong>Visit Us</strong>
+          <span>Shop No. 7, Dynamic Grandeur,<br />Wadarwadi Road, Undri, Pune</span>
+        </div>
+        <div class="cell">
+          <strong>Also Available</strong>
+          <span>Dine-In &amp;<br />Takeaway</span>
+        </div>
+      </div>
+      <p class="fineprint">Prices in INR. Taxes extra as applicable.</p>
+    </section>
+  </div>
+
+<script>
+  // diet: "v" veg, "nv" non-veg
+  // price: number OR string (for multi-protein options)
+  const MENU = [
+    /* ---------------- STARTERS ---------------- */
+    { cat:"starter", diet:"v", name:"Sweet Corn Soup", price:119, desc:"Gentle warmth, creamy and comforting" },
+    { cat:"starter", diet:"v", name:"Hot & Sour Soup", price:119, desc:"Tangy spice with a lively kick" },
+    { cat:"starter", diet:"v", name:"Cottage Cheese in Hot Basil Sauce", price:199, desc:"Silken paneer kissed with basil heat" },
+    { cat:"starter", diet:"v", name:"Stir Fried Vegetables", price:149, desc:"Garden freshness, wok-tossed to perfection" },
+    { cat:"starter", diet:"v", name:"Veg Manchurian", price:149, desc:"Saucy Indo-Chinese indulgence" },
+    { cat:"starter", diet:"v", name:"Paneer 65", price:199, desc:"Legendary South Indian spice burst" },
+    { cat:"starter", diet:"v", name:"Honey Chilly Potato", price:249, desc:"Crisp golden bites glazed with sweet spice" },
+    { cat:"starter", diet:"v", name:"Crispy Veg", price:249, desc:"Golden crunch, delicately seasoned" },
+    { cat:"starter", diet:"nv", name:"Chicken Clear Soup", price:149, desc:"Light broth, delicate and soothing" },
+    { cat:"starter", diet:"nv", name:"Hot & Sour Soup (Chicken)", price:149, desc:"Tangy spice with hearty chicken" },
+    { cat:"starter", diet:"nv", name:"Crispy Chicken", price:249, desc:"Crunch outside, tender inside" },
+    { cat:"starter", diet:"nv", name:"Chicken Manchurian", price:249, desc:"Classic Indo-Chinese comfort" },
+    { cat:"starter", diet:"nv", name:"Chicken 65", price:249, desc:"Spicy, crispy, legendary", chef:true },
+
+    /* ---------------- MAINS ---------------- */
+    { cat:"mains", diet:"v", name:"Black Pepper Mushroom / Paneer", price:249, desc:"Bold pepper warmth with tender textures" },
+    { cat:"mains", diet:"v", name:"Chilly Paneer", price:249, desc:"Fiery wok magic, vibrant and addictive" },
+    { cat:"mains", diet:"v", name:"Garlic Basil Special", price:249, desc:"Fragrant herbs with a garlicky punch" },
+    { cat:"mains", diet:"nv", name:"Black Pepper Chicken", price:249, desc:"Juicy bites with a peppery punch" },
+    { cat:"mains", diet:"nv", name:"Chilly Chicken / Fish / Prawn", price:"299 / 349 / 399", desc:"Fiery wok magic, bursting with flavor", chef:true },
+    { cat:"mains", diet:"nv", name:"Garlic Basil Special (Chicken)", price:349, desc:"Fragrant herbs with a garlicky punch" },
+    { cat:"mains", diet:"nv", name:"Kung Pao (Chicken)", price:349, desc:"Nutty, spicy, and irresistible" },
+    { cat:"mains", diet:"nv", name:"Lemon Grass Chicken / Prawns", price:"349 / 449", desc:"Zesty lemongrass with smoky paprika" },
+    { cat:"mains", diet:"nv", name:"Thai Basil Chicken / Fish / Prawn", price:"349 / 399 / 449", desc:"Aromatic Thai flavors, rich and balanced" },
+    { cat:"mains", diet:"nv", name:"Ginger Soya Chicken", price:299, desc:"Earthy soy with a ginger zing" },
+    { cat:"mains", diet:"nv", name:"Chicken in Teriyaki Sauce", price:299, desc:"Sweet-savory Japanese glaze" },
+
+    /* ---------------- COMBOS ---------------- */
+    { cat:"combos", diet:"nv", name:"Chilli with Garlic Fried Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Spicy, garlicky fried rice with a bold kick" },
+    { cat:"combos", diet:"nv", name:"Red / Green Curry Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Aromatic Thai curry with steamed rice" },
+
+    /* ---------------- RICE / NOODLES ---------------- */
+    { cat:"rice", diet:"nv", name:"Schezwan Rice (Chicken)", price:349, desc:"Fiery rice with a wok-tossed twist" },
+    { cat:"rice", diet:"nv", name:"Chilli with Garlic Fried Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Spicy, garlicky fried rice with a bold kick" },
+    { cat:"rice", diet:"nv", name:"Hakka Noodles (Chicken)", price:349, desc:"Street-style stir-fried perfection" },
+    { cat:"rice", diet:"nv", name:"Schezwan Noodles (Chicken)", price:349, desc:"Spicy, smoky, full of punch" },
+    { cat:"rice", diet:"nv", name:"Pad Thai Noodles (Chicken / Prawns)", price:"399 / 499", desc:"Savory, wok-tossed noodles with choice of protein" },
+    { cat:"rice", diet:"nv", name:"Red / Green Curry Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Aromatic Thai curry with steamed rice" },
+
+    /* ---------------- QUICK BITES ---------------- */
+    { cat:"bites", diet:"v", name:"Fries", price:149, desc:"Golden crisp, perfectly seasoned" },
+    { cat:"bites", diet:"v", name:"Spring Roll", price:149, desc:"Delicate wrap with savory filling" },
+    { cat:"bites", diet:"v", name:"Maggi", price:99, desc:"Comfort noodles, homely and nostalgic" },
+    { cat:"bites", diet:"v", name:"Momos", price:149, desc:"Steamed pockets of flavor" },
+    { cat:"bites", diet:"v", name:"Grilled Cheese Sandwich", price:199, desc:"Warm layers, smoky and satisfying" },
+    { cat:"bites", diet:"nv", name:"Momos (Chicken)", price:199, desc:"Steamed pockets of flavor" },
+    { cat:"bites", diet:"nv", name:"Chicken Nuggets", price:199, desc:"Tender bites, crisp and golden" },
+    { cat:"bites", diet:"nv", name:"Grilled Sandwich (Chicken)", price:249, desc:"Warm layers, smoky and satisfying" },
+
+    /* ---------------- BEVERAGES ---------------- */
+    { cat:"beverages", diet:"v", name:"Tea", price:30, desc:"Classic comfort in a cup" },
+    { cat:"beverages", diet:"v", name:"Coffee (Espresso / Cappuccino / Latte)", price:"99 / 149 / 199", desc:"Bold brew, pure energy" },
+    { cat:"beverages", diet:"v", name:"Cold Coffee", price:149, desc:"Refreshing & chilled" },
+    { cat:"beverages", diet:"v", name:"Milk Shake", price:149, desc:"Creamy chill, sweet indulgence" },
+    { cat:"beverages", diet:"v", name:"Fresh Lime Soda with a twist", price:99, desc:"Zesty and refreshing" },
+    { cat:"beverages", diet:"v", name:"Fruit Juice", price:99, desc:"Refreshing fruit, ready to sip" },
+    { cat:"beverages", diet:"v", name:"Packaged Water", price:20, desc:"Pure hydration, anytime" },
+
+    /* ---------------- DESSERTS ---------------- */
+    { cat:"desserts", diet:"v", name:"Walnut Brownie with Vanilla Ice Cream", price:199, desc:"Warm, rich and gooey" },
+    { cat:"desserts", diet:"v", name:"Hot Gulab Jamun with Ice Cream", price:149, desc:"Sweet warmth meets cool cream" },
+    { cat:"desserts", diet:"v", name:"Pancake with Chocolate Syrup & Vanilla Ice Cream", price:149, desc:"Fluffy, indulgent and sweet" },
+  ];
+
+  const SECTIONS = [
+    { key:"starter",   label:"Starter",       ico:"🌶️" },
+    { key:"mains",     label:"Mains",          ico:"🍜" },
+    { key:"combos",    label:"Combos",         ico:"🍛" },
+    { key:"rice",      label:"Rice / Noodles", ico:"🍚" },
+    { key:"bites",     label:"Quick Bites",    ico:"🍟" },
+    { key:"beverages", label:"Beverages",      ico:"🥤" },
+    { key:"desserts",  label:"Desserts",       ico:"🍰" },
+  ];
+
+  const menuEl = document.getElementById("menu");
+
+  function priceHTML(p) {
+    if (typeof p === "number") return `₹${p}`;
+    return `<span class="multi">₹${p}</span>`;
+  }
+
+  function render() {
+    menuEl.innerHTML = "";
+    SECTIONS.forEach(sec => {
+      const items = MENU.filter(m => m.cat === sec.key);
+      if (!items.length) return;
+      const section = document.createElement("section");
+      section.className = "section";
+      section.dataset.cat = sec.key;
+      section.innerHTML = `
+        <h2 class="section-title">
+          <span class="ico">${sec.ico}</span>${sec.label}
+          <span class="rupee">₹</span>
+        </h2>`;
+      items.forEach((m, i) => {
+        const el = document.createElement("div");
+        el.className = "item";
+        el.dataset.cat = m.cat;
+        el.dataset.diet = m.diet;
+        el.style.animationDelay = (i * 0.04) + "s";
+        el.innerHTML = `
+          <span class="mark ${m.diet}"></span>
+          <div class="item-body">
+            <div class="item-head">
+              <span class="item-name">${m.name}${m.chef ? '<span class="chef">Chef&#39;s Pick</span>' : ''}</span>
+              <span class="dots"></span>
+              <span class="price">${priceHTML(m.price)}</span>
+            </div>
+            <p class="desc">${m.desc}</p>
+          </div>`;
+        section.appendChild(el);
+      });
+      menuEl.appendChild(section);
+    });
+  }
+
+  function applyFilter(filter) {
+    const isCat = filter.startsWith("cat:");
+    const catKey = isCat ? filter.slice(4) : null;
+    let anyVisible = false;
+    document.querySelectorAll(".section").forEach(section => {
+      let visible = 0;
+      section.querySelectorAll(".item").forEach(item => {
+        let show;
+        if (filter === "all") show = true;
+        else if (filter === "veg") show = item.dataset.diet === "v";
+        else if (filter === "nonveg") show = item.dataset.diet === "nv";
+        else if (isCat) show = item.dataset.cat === catKey;
+        else show = true;
+        item.classList.toggle("hide", !show);
+        if (show) { visible++; anyVisible = true; }
+      });
+      section.style.display = visible ? "" : "none";
+    });
+    document.getElementById("empty").style.display = anyVisible ? "none" : "block";
+  }
+
+  const filters = document.getElementById("filters");
+  filters.addEventListener("click", e => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    filters.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    applyFilter(btn.dataset.filter);
+  });
+
+  render();
+</script>
+</body>
+</html>
