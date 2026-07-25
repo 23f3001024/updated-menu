@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Menu Dashboard — Chili N' Curry</title>
+<style>
+  :root {
+    --cream: #f7f2e7; --paper: #fdfbf5; --red: #c0392b; --red-deep: #9c2a1f;
+    --red-soft: #e0503f; --ink: #2b2622; --muted: #8a8073; --line: #e6ddca;
+    --green: #4c8b3a; --gold: #c99a3a; --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(900px 500px at 50% -5%, #fffdf7 0%, var(--cream) 60%), var(--cream);
+    color: var(--ink); font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 18px 90px; }
+
+  .topbar {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin: 22px auto 20px; padding: 18px 22px;
+    background: var(--paper); border: 2px solid var(--red); border-radius: 18px;
+  }
+  .topbar h1 { font-family: Georgia, serif; color: var(--red); font-size: 22px; letter-spacing: .02em; }
+  .topbar .sub { color: var(--muted); font-size: 12.5px; }
+  .topbar .spacer { flex: 1; }
+
+  .btn {
+    font: inherit; font-weight: 600; font-size: 13.5px; letter-spacing: .02em;
+    border: 1.5px solid var(--line); background: var(--paper); color: var(--ink);
+    padding: 9px 16px; border-radius: 999px; cursor: pointer;
+    transition: all .18s ease; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn:hover { border-color: var(--red); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0) scale(.97); }
+  .btn.primary { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--red-soft), var(--red) 70%, var(--red-deep)); }
+  .btn.ghost { background: transparent; }
+  .btn.danger { color: var(--red-deep); border-color: rgba(192,57,43,.4); }
+  .btn.danger:hover { background: rgba(192,57,43,.08); border-color: var(--red); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+  .btn.small { padding: 6px 12px; font-size: 12.5px; }
+
+  /* ---------- Login ---------- */
+  .login-card {
+    max-width: 380px; margin: 12vh auto 0; background: var(--paper);
+    border: 2px solid var(--red); border-radius: 20px; padding: 34px 28px; text-align: center;
+  }
+  .login-card h2 { font-family: Georgia, serif; color: var(--red); font-size: 24px; margin-bottom: 6px; }
+  .login-card p { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+
+  input, select, textarea {
+    font: inherit; width: 100%; padding: 11px 13px; color: var(--ink);
+    background: #fff; border: 1.5px solid var(--line); border-radius: 10px;
+    transition: border-color .18s ease, box-shadow .18s ease;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(192,57,43,.12);
+  }
+  textarea { resize: vertical; min-height: 62px; }
+  label { display: block; text-align: left; font-size: 11.5px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 6px 2px; }
+  .field { margin-bottom: 15px; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 20px;
+  }
+  .toolbar .search { flex: 1; min-width: 180px; }
+  .toolbar select { width: auto; min-width: 150px; }
+  .count { color: var(--muted); font-size: 12.5px; margin-left: auto; }
+
+  /* ---------- Items table ---------- */
+  .group { margin-bottom: 26px; }
+  .group-title {
+    display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .04em; color: var(--ink);
+    padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid var(--line);
+  }
+  .row {
+    display: grid; grid-template-columns: 22px 1fr auto auto; gap: 12px; align-items: center;
+    padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--paper); margin-bottom: 8px; transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .row:hover { box-shadow: 0 10px 22px -18px rgba(43,38,34,.6); transform: translateX(2px); }
+  .mark { width: 15px; height: 15px; border-radius: 3px; background: #fff; position: relative; }
+  .mark.v { border: 2px solid var(--green); }
+  .mark.v::after { content:""; position:absolute; inset:3px; border-radius:50%; background: var(--green); }
+  .mark.nv { border: 2px solid var(--red); }
+  .mark.nv::after { content:""; position:absolute; inset:3px; border-radius:50%; background: var(--red); }
+  .row .name { font-weight: 600; font-size: 14.5px; }
+  .row .name .chef { font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold);
+    border: 1px solid rgba(201,154,58,.5); border-radius: 999px; padding: 2px 6px; margin-left: 7px; font-weight: 700; }
+  .row .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .row .price { font-family: Georgia, serif; font-weight: 700; color: var(--red-deep); font-size: 14px; white-space: nowrap; }
+  .row .actions { display: flex; gap: 6px; }
+
+  /* ---------- Modal ---------- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(43,38,34,.5); backdrop-filter: blur(3px);
+    display: none; align-items: flex-start; justify-content: center; z-index: 100; padding: 24px 16px; overflow-y: auto;
+  }
+  .overlay.show { display: flex; }
+  .modal {
+    background: var(--paper); border: 2px solid var(--red); border-radius: 18px;
+    padding: 26px 24px; width: 100%; max-width: 480px; margin: auto;
+    animation: pop .25s cubic-bezier(.2,.9,.3,1.3);
+  }
+  @keyframes pop { from { opacity: 0; transform: scale(.94) translateY(10px); } to { opacity: 1; transform: none; } }
+  .modal h3 { font-family: Georgia, serif; color: var(--red); font-size: 20px; margin-bottom: 18px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+  .checkbox { display: flex; align-items: center; gap: 9px; }
+  .checkbox input { width: auto; }
+  .checkbox label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+
+  .hint { color: var(--muted); font-size: 11.5px; margin-top: 5px; }
+  .toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 999px; font-size: 13.5px;
+    opacity: 0; pointer-events: none; transition: all .3s ease; z-index: 200; max-width: 90vw;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.err { background: var(--red-deep); }
+  .empty-note { color: var(--muted); font-style: italic; text-align: center; padding: 40px 0; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 20px 1fr auto; grid-template-areas: "mark name price" "mark meta actions"; row-gap: 6px; }
+    .row .mark { grid-area: mark; } .row .body { grid-area: name; }
+    .row .price { grid-area: price; } .row .actions { grid-area: actions; justify-self: end; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="loginView" class="hidden">
+    <form class="login-card" id="loginForm">
+      <h2>Menu Dashboard</h2>
+      <p>The House of Chili N' Curry</p>
+      <div class="field">
+        <label for="password">Admin Password</label>
+        <input type="password" id="password" autocomplete="current-password" required />
+      </div>
+      <button class="btn primary" type="submit" id="loginBtn" style="width:100%">Sign In</button>
+      <p class="hint" id="loginErr" style="color:var(--red-deep); margin-top:12px;"></p>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashView" class="hidden">
+    <div class="wrap">
+      <div class="topbar">
+        <div>
+          <h1>Menu Dashboard</h1>
+          <div class="sub">Add, edit &amp; remove items — changes go live instantly.</div>
+        </div>
+        <div class="spacer"></div>
+        <a class="btn ghost" href="/" target="_blank" rel="noopener">View Menu ↗</a>
+        <button class="btn primary" id="addBtn">+ Add Item</button>
+        <button class="btn ghost" id="logoutBtn">Log Out</button>
+      </div>
+
+      <div class="toolbar">
+        <input class="search" id="search" type="search" placeholder="Search items…" />
+        <select id="catFilter">
+          <option value="">All categories</option>
+        </select>
+        <select id="dietFilter">
+          <option value="">Veg &amp; Non-Veg</option>
+          <option value="v">Veg only</option>
+          <option value="nv">Non-Veg only</option>
+        </select>
+        <span class="count" id="count"></span>
+      </div>
+
+      <div id="list"></div>
+    </div>
+  </div>
+
+  <!-- EDIT / ADD MODAL -->
+  <div class="overlay" id="overlay">
+    <form class="modal" id="itemForm">
+      <h3 id="modalTitle">Add Item</h3>
+      <input type="hidden" id="itemId" />
+      <div class="field">
+        <label for="f-name">Name</label>
+        <input id="f-name" required maxlength="120" />
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="f-cat">Category</label>
+          <select id="f-cat" required></select>
+        </div>
+        <div class="field">
+          <label for="f-diet">Type</label>
+          <select id="f-diet">
+            <option value="v">Veg</option>
+            <option value="nv">Non-Veg</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-price">Price</label>
+        <input id="f-price" required maxlength="60" placeholder="e.g. 249  or  299 / 349 / 399" />
+        <p class="hint">Use a single number, or a “/”-separated list for multi-protein options.</p>
+      </div>
+      <div class="field">
+        <label for="f-desc">Description</label>
+        <textarea id="f-desc" maxlength="200"></textarea>
+      </div>
+      <div class="checkbox field">
+        <input type="checkbox" id="f-chef" />
+        <label for="f-chef">Mark as Chef's Pick</label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn primary" id="saveBtn">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let SECTIONS = [];
+  let ITEMS = [];
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+      { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+    ));
+  }
+  function priceText(p) { return "₹" + p; }
+  function catLabel(key) { const s = SECTIONS.find((x) => x.key === key); return s ? s.label : key; }
+
+  let toastTimer;
+  function toast(msg, isErr) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.toggle("err", !!isErr);
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(path, {
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      ...opts,
+    });
+    let data = {};
+    try { data = await res.json(); } catch (_) {}
+    if (!res.ok) throw new Error(data.error || "Request failed (" + res.status + ")");
+    return data;
+  }
+
+  /* ---------- Auth ---------- */
+  function showLogin() { $("loginView").classList.remove("hidden"); $("dashView").classList.add("hidden"); $("password").focus(); }
+  function showDash() { $("loginView").classList.add("hidden"); $("dashView").classList.remove("hidden"); }
+
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("loginErr").textContent = "";
+    $("loginBtn").disabled = true;
+    try {
+      await api("/api/login", { method: "POST", body: JSON.stringify({ password: $("password").value }) });
+      $("password").value = "";
+      await boot();
+    } catch (err) {
+      $("loginErr").textContent = err.message;
+    } finally {
+      $("loginBtn").disabled = false;
+    }
+  });
+
+  $("logoutBtn").addEventListener("click", async () => {
+    await api("/api/logout", { method: "POST" }).catch(() => {});
+    showLogin();
+  });
+
+  /* ---------- Data ---------- */
+  async function loadMenu() {
+    const data = await api("/api/menu");
+    ITEMS = data.items || [];
+    SECTIONS = data.sections || [];
+    populateCategorySelects();
+    renderList();
+  }
+
+  function populateCategorySelects() {
+    const opts = SECTIONS.map((s) => `<option value="${esc(s.key)}">${esc(s.label)}</option>`).join("");
+    $("f-cat").innerHTML = opts;
+    $("catFilter").innerHTML = '<option value="">All categories</option>' + opts;
+  }
+
+  /* ---------- List rendering ---------- */
+  function renderList() {
+    const q = $("search").value.trim().toLowerCase();
+    const catF = $("catFilter").value;
+    const dietF = $("dietFilter").value;
+
+    const filtered = ITEMS.filter((it) => {
+      if (catF && it.cat !== catF) return false;
+      if (dietF && it.diet !== dietF) return false;
+      if (q && !(it.name + " " + (it.desc || "")).toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    $("count").textContent = filtered.length + " of " + ITEMS.length + " items";
+
+    const list = $("list");
+    if (!filtered.length) {
+      list.innerHTML = '<p class="empty-note">No items match — adjust your search or add a new one.</p>';
+      return;
+    }
+
+    // Group by section order.
+    let html = "";
+    SECTIONS.forEach((sec) => {
+      const rows = filtered.filter((it) => it.cat === sec.key);
+      if (!rows.length) return;
+      html += `<div class="group"><div class="group-title"><span>${esc(sec.ico || "")}</span>${esc(sec.label)} <span style="color:var(--muted);font-weight:600;font-size:12px">(${rows.length})</span></div>`;
+      rows.forEach((it) => {
+        html += `
+          <div class="row" data-id="${esc(it.id)}">
+            <span class="mark ${it.diet === "nv" ? "nv" : "v"}"></span>
+            <div class="body">
+              <div class="name">${esc(it.name)}${it.chef ? '<span class="chef">Chef’s Pick</span>' : ""}</div>
+              ${it.desc ? `<div class="meta">${esc(it.desc)}</div>` : ""}
+            </div>
+            <div class="price">${esc(priceText(it.price))}</div>
+            <div class="actions">
+              <button class="btn small ghost act-edit">Edit</button>
+              <button class="btn small danger act-del">Delete</button>
+            </div>
+          </div>`;
+      });
+      html += `</div>`;
+    });
+    list.innerHTML = html;
+  }
+
+  $("search").addEventListener("input", renderList);
+  $("catFilter").addEventListener("change", renderList);
+  $("dietFilter").addEventListener("change", renderList);
+
+  /* ---------- Row actions (delegated) ---------- */
+  $("list").addEventListener("click", async (e) => {
+    const row = e.target.closest(".row");
+    if (!row) return;
+    const id = row.dataset.id;
+    const item = ITEMS.find((x) => x.id === id);
+    if (e.target.classList.contains("act-edit")) openModal(item);
+    else if (e.target.classList.contains("act-del")) deleteItem(item);
+  });
+
+  async function deleteItem(item) {
+    if (!item) return;
+    if (!confirm(`Delete “${item.name}”? This cannot be undone.`)) return;
+    try {
+      await api("/api/menu?id=" + encodeURIComponent(item.id), { method: "DELETE" });
+      ITEMS = ITEMS.filter((x) => x.id !== item.id);
+      renderList();
+      toast("Deleted “" + item.name + "”");
+    } catch (err) {
+      toast(err.message, true);
+    }
+  }
+
+  /* ---------- Modal ---------- */
+  function openModal(item) {
+    const editing = !!item;
+    $("modalTitle").textContent = editing ? "Edit Item" : "Add Item";
+    $("itemId").value = editing ? item.id : "";
+    $("f-name").value = editing ? item.name : "";
+    $("f-cat").value = editing ? item.cat : (SECTIONS[0] && SECTIONS[0].key) || "";
+    $("f-diet").value = editing ? (item.diet === "nv" ? "nv" : "v") : "v";
+    $("f-price").value = editing ? String(item.price) : "";
+    $("f-desc").value = editing ? item.desc || "" : "";
+    $("f-chef").checked = editing ? !!item.chef : false;
+    $("overlay").classList.add("show");
+    setTimeout(() => $("f-name").focus(), 50);
+  }
+  function closeModal() { $("overlay").classList.remove("show"); }
+
+  $("addBtn").addEventListener("click", () => openModal(null));
+  $("cancelBtn").addEventListener("click", closeModal);
+  $("overlay").addEventListener("click", (e) => { if (e.target === $("overlay")) closeModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+  $("itemForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = $("itemId").value;
+    const payload = {
+      name: $("f-name").value.trim(),
+      cat: $("f-cat").value,
+      diet: $("f-diet").value,
+      price: $("f-price").value.trim(),
+      desc: $("f-desc").value.trim(),
+      chef: $("f-chef").checked,
+    };
+    $("saveBtn").disabled = true;
+    try {
+      if (id) {
+        const { item } = await api("/api/menu?id=" + encodeURIComponent(id), { method: "PUT", body: JSON.stringify(payload) });
+        const idx = ITEMS.findIndex((x) => x.id === id);
+        if (idx !== -1) ITEMS[idx] = item;
+        toast("Saved changes");
+      } else {
+        const { item } = await api("/api/menu", { method: "POST", body: JSON.stringify(payload) });
+        ITEMS.push(item);
+        toast("Added “" + item.name + "”");
+      }
+      closeModal();
+      renderList();
+    } catch (err) {
+      toast(err.message, true);
+    } finally {
+      $("saveBtn").disabled = false;
+    }
+  });
+
+  /* ---------- Boot ---------- */
+  async function boot() {
+    showDash();
+    try {
+      await loadMenu();
+    } catch (err) {
+      toast(err.message, true);
+    }
+  }
+
+  (async function init() {
+    try {
+      const { authed } = await api("/api/session");
+      if (authed) await boot();
+      else showLogin();
+    } catch (_) {
+      showLogin();
+    }
+  })();
+</script>
+</body>
+</html>

@@ -205,6 +205,18 @@
   .contact-grid .cell strong { display:block; color:var(--red); font-size:11px; letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px; }
   .contact-grid .cell span { color:var(--ink); font-size:14px; line-height:1.5; }
   .fineprint { margin-top: 22px; color: var(--muted); font-size: 12px; letter-spacing:.08em; }
+  .admin-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 16px;
+    font-size: 12px; font-weight: 600; letter-spacing: .06em; text-decoration: none;
+    color: var(--muted); background: var(--cream-2);
+    border: 1.5px solid var(--line); border-radius: 999px; padding: 7px 15px;
+    transition: color .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .admin-link:hover {
+    color: var(--red); border-color: var(--red); transform: translateY(-2px);
+    box-shadow: 0 6px 14px -8px rgba(192,57,43,.5);
+  }
+  .admin-link:active { transform: translateY(0) scale(.96); }
 
   @keyframes fade-up { from { opacity:0; transform: translateY(14px);} to {opacity:1; transform:none;} }
   @keyframes fade-in { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;} }
@@ -333,95 +345,29 @@
         </div>
       </div>
       <p class="fineprint">Prices in INR. Taxes extra as applicable.</p>
+      <a class="admin-link" href="/admin">⚙ Admin</a>
     </section>
   </div>
 
   <button class="to-top" id="toTop" aria-label="Back to top">&#8593;</button>
 
 <script>
-  // diet: "v" veg, "nv" non-veg
-  // price: number OR string (for multi-protein options)
-  const MENU = [
-    /* ---------------- STARTERS ---------------- */
-    { cat:"starter", diet:"v", name:"Sweet Corn Soup", price:119, desc:"Gentle warmth, creamy and comforting" },
-    { cat:"starter", diet:"v", name:"Hot & Sour Soup", price:119, desc:"Tangy spice with a lively kick" },
-    { cat:"starter", diet:"v", name:"Cottage Cheese in Hot Basil Sauce", price:199, desc:"Silken paneer kissed with basil heat" },
-    { cat:"starter", diet:"v", name:"Stir Fried Vegetables", price:149, desc:"Garden freshness, wok-tossed to perfection" },
-    { cat:"starter", diet:"v", name:"Veg Manchurian", price:149, desc:"Saucy Indo-Chinese indulgence" },
-    { cat:"starter", diet:"v", name:"Paneer 65", price:199, desc:"Legendary South Indian spice burst" },
-    { cat:"starter", diet:"v", name:"Honey Chilly Potato", price:249, desc:"Crisp golden bites glazed with sweet spice" },
-    { cat:"starter", diet:"v", name:"Crispy Veg", price:249, desc:"Golden crunch, delicately seasoned" },
-    { cat:"starter", diet:"nv", name:"Chicken Clear Soup", price:149, desc:"Light broth, delicate and soothing" },
-    { cat:"starter", diet:"nv", name:"Hot & Sour Soup (Chicken)", price:149, desc:"Tangy spice with hearty chicken" },
-    { cat:"starter", diet:"nv", name:"Crispy Chicken", price:249, desc:"Crunch outside, tender inside" },
-    { cat:"starter", diet:"nv", name:"Chicken Manchurian", price:249, desc:"Classic Indo-Chinese comfort" },
-    { cat:"starter", diet:"nv", name:"Chicken 65", price:249, desc:"Spicy, crispy, legendary", chef:true },
-
-    /* ---------------- MAINS ---------------- */
-    { cat:"mains", diet:"v", name:"Black Pepper Mushroom / Paneer", price:249, desc:"Bold pepper warmth with tender textures" },
-    { cat:"mains", diet:"v", name:"Chilly Paneer", price:249, desc:"Fiery wok magic, vibrant and addictive" },
-    { cat:"mains", diet:"v", name:"Garlic Basil Special", price:249, desc:"Fragrant herbs with a garlicky punch" },
-    { cat:"mains", diet:"nv", name:"Black Pepper Chicken", price:249, desc:"Juicy bites with a peppery punch" },
-    { cat:"mains", diet:"nv", name:"Chilly Chicken / Fish / Prawn", price:"299 / 349 / 399", desc:"Fiery wok magic, bursting with flavor", chef:true },
-    { cat:"mains", diet:"nv", name:"Garlic Basil Special (Chicken)", price:349, desc:"Fragrant herbs with a garlicky punch" },
-    { cat:"mains", diet:"nv", name:"Kung Pao (Chicken)", price:349, desc:"Nutty, spicy, and irresistible" },
-    { cat:"mains", diet:"nv", name:"Lemon Grass Chicken / Prawns", price:"349 / 449", desc:"Zesty lemongrass with smoky paprika" },
-    { cat:"mains", diet:"nv", name:"Thai Basil Chicken / Fish / Prawn", price:"349 / 399 / 449", desc:"Aromatic Thai flavors, rich and balanced" },
-    { cat:"mains", diet:"nv", name:"Ginger Soya Chicken", price:299, desc:"Earthy soy with a ginger zing" },
-    { cat:"mains", diet:"nv", name:"Chicken in Teriyaki Sauce", price:299, desc:"Sweet-savory Japanese glaze" },
-
-    /* ---------------- COMBOS ---------------- */
-    { cat:"combos", diet:"nv", name:"Chilli with Garlic Fried Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Spicy, garlicky fried rice with a bold kick" },
-    { cat:"combos", diet:"nv", name:"Red / Green Curry Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Aromatic Thai curry with steamed rice" },
-
-    /* ---------------- RICE / NOODLES ---------------- */
-    { cat:"rice", diet:"nv", name:"Schezwan Rice (Chicken)", price:349, desc:"Fiery rice with a wok-tossed twist" },
-    { cat:"rice", diet:"nv", name:"Chilli with Garlic Fried Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Spicy, garlicky fried rice with a bold kick" },
-    { cat:"rice", diet:"nv", name:"Hakka Noodles (Chicken)", price:349, desc:"Street-style stir-fried perfection" },
-    { cat:"rice", diet:"nv", name:"Schezwan Noodles (Chicken)", price:349, desc:"Spicy, smoky, full of punch" },
-    { cat:"rice", diet:"nv", name:"Pad Thai Noodles (Chicken / Prawns)", price:"399 / 499", desc:"Savory, wok-tossed noodles with choice of protein" },
-    { cat:"rice", diet:"nv", name:"Red / Green Curry Rice (Chicken / Fish / Prawns)", price:"399 / 449 / 499", desc:"Aromatic Thai curry with steamed rice" },
-
-    /* ---------------- QUICK BITES ---------------- */
-    { cat:"bites", diet:"v", name:"Fries", price:149, desc:"Golden crisp, perfectly seasoned" },
-    { cat:"bites", diet:"v", name:"Spring Roll", price:149, desc:"Delicate wrap with savory filling" },
-    { cat:"bites", diet:"v", name:"Maggi", price:99, desc:"Comfort noodles, homely and nostalgic" },
-    { cat:"bites", diet:"v", name:"Momos", price:149, desc:"Steamed pockets of flavor" },
-    { cat:"bites", diet:"v", name:"Grilled Cheese Sandwich", price:199, desc:"Warm layers, smoky and satisfying" },
-    { cat:"bites", diet:"nv", name:"Momos (Chicken)", price:199, desc:"Steamed pockets of flavor" },
-    { cat:"bites", diet:"nv", name:"Chicken Nuggets", price:199, desc:"Tender bites, crisp and golden" },
-    { cat:"bites", diet:"nv", name:"Grilled Sandwich (Chicken)", price:249, desc:"Warm layers, smoky and satisfying" },
-
-    /* ---------------- BEVERAGES ---------------- */
-    { cat:"beverages", diet:"v", name:"Tea", price:30, desc:"Classic comfort in a cup" },
-    { cat:"beverages", diet:"v", name:"Coffee (Espresso / Cappuccino / Latte)", price:"99 / 149 / 199", desc:"Bold brew, pure energy" },
-    { cat:"beverages", diet:"v", name:"Cold Coffee", price:149, desc:"Refreshing & chilled" },
-    { cat:"beverages", diet:"v", name:"Milk Shake", price:149, desc:"Creamy chill, sweet indulgence" },
-    { cat:"beverages", diet:"v", name:"Fresh Lime Soda with a twist", price:99, desc:"Zesty and refreshing" },
-    { cat:"beverages", diet:"v", name:"Fruit Juice", price:99, desc:"Refreshing fruit, ready to sip" },
-    { cat:"beverages", diet:"v", name:"Packaged Water", price:20, desc:"Pure hydration, anytime" },
-
-    /* ---------------- DESSERTS ---------------- */
-    { cat:"desserts", diet:"v", name:"Walnut Brownie with Vanilla Ice Cream", price:199, desc:"Warm, rich and gooey" },
-    { cat:"desserts", diet:"v", name:"Hot Gulab Jamun with Ice Cream", price:149, desc:"Sweet warmth meets cool cream" },
-    { cat:"desserts", diet:"v", name:"Pancake with Chocolate Syrup & Vanilla Ice Cream", price:149, desc:"Fluffy, indulgent and sweet" },
-  ];
-
-  const SECTIONS = [
-    { key:"starter",   label:"Starter",       ico:"🌶️" },
-    { key:"mains",     label:"Mains",          ico:"🍜" },
-    { key:"combos",    label:"Combos",         ico:"🍛" },
-    { key:"rice",      label:"Rice / Noodles", ico:"🍚" },
-    { key:"bites",     label:"Quick Bites",    ico:"🍟" },
-    { key:"beverages", label:"Beverages",      ico:"🥤" },
-    { key:"desserts",  label:"Desserts",       ico:"🍰" },
-  ];
+  // Menu data is loaded live from the API (/api/menu).
+  // diet: "v" veg, "nv" non-veg | price: number OR string (multi-protein options)
+  let MENU = [];
+  let SECTIONS = [];
 
   const menuEl = document.getElementById("menu");
 
+  function escapeHTML(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+      { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+    ));
+  }
+
   function priceHTML(p) {
     if (typeof p === "number") return `₹${p}`;
-    return `<span class="multi">₹${p}</span>`;
+    return `<span class="multi">₹${escapeHTML(p)}</span>`;
   }
 
   function render() {
@@ -447,11 +393,11 @@
           <span class="mark ${m.diet}"></span>
           <div class="item-body">
             <div class="item-head">
-              <span class="item-name">${m.name}${m.chef ? '<span class="chef">Chef&#39;s Pick</span>' : ''}</span>
+              <span class="item-name">${escapeHTML(m.name)}${m.chef ? '<span class="chef">Chef&#39;s Pick</span>' : ''}</span>
               <span class="dots"></span>
               <span class="price">${priceHTML(m.price)}</span>
             </div>
-            <p class="desc">${m.desc}</p>
+            ${m.desc ? `<p class="desc">${escapeHTML(m.desc)}</p>` : ""}
           </div>`;
         section.appendChild(el);
       });
@@ -504,7 +450,24 @@
     applyFilter(btn.dataset.filter);
   });
 
-  render();
+  async function loadMenu() {
+    try {
+      const res = await fetch("/api/menu", { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error("Request failed: " + res.status);
+      const data = await res.json();
+      MENU = Array.isArray(data.items) ? data.items : [];
+      SECTIONS = Array.isArray(data.sections) ? data.sections : [];
+      render();
+      // Re-apply whichever filter is currently active.
+      const active = document.querySelector("#filters .chip.active");
+      if (active) applyFilter(active.dataset.filter);
+    } catch (err) {
+      menuEl.innerHTML =
+        '<p class="empty" style="display:block">Menu is taking a moment to load — please refresh.</p>';
+      console.error(err);
+    }
+  }
+  loadMenu();
 
   // Scroll progress bar, sticky-filter shadow, and back-to-top button
   const progress = document.getElementById("progress");

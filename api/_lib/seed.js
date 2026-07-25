@@ -1,0 +1,70 @@
+// Default menu used to seed storage the first time the API runs.
+// diet: "v" veg, "nv" non-veg | price: number OR string (multi-protein options)
+export const SECTIONS = [
+  { key: "starter", label: "Starter", ico: "🌶️" },
+  { key: "mains", label: "Mains", ico: "🍜" },
+  { key: "combos", label: "Combos", ico: "🍛" },
+  { key: "rice", label: "Rice / Noodles", ico: "🍚" },
+  { key: "bites", label: "Quick Bites", ico: "🍟" },
+  { key: "beverages", label: "Beverages", ico: "🥤" },
+  { key: "desserts", label: "Desserts", ico: "🍰" },
+];
+
+export const SEED_MENU = [
+  { cat: "starter", diet: "v", name: "Sweet Corn Soup", price: 119, desc: "Gentle warmth, creamy and comforting" },
+  { cat: "starter", diet: "v", name: "Hot & Sour Soup", price: 119, desc: "Tangy spice with a lively kick" },
+  { cat: "starter", diet: "v", name: "Cottage Cheese in Hot Basil Sauce", price: 199, desc: "Silken paneer kissed with basil heat" },
+  { cat: "starter", diet: "v", name: "Stir Fried Vegetables", price: 149, desc: "Garden freshness, wok-tossed to perfection" },
+  { cat: "starter", diet: "v", name: "Veg Manchurian", price: 149, desc: "Saucy Indo-Chinese indulgence" },
+  { cat: "starter", diet: "v", name: "Paneer 65", price: 199, desc: "Legendary South Indian spice burst" },
+  { cat: "starter", diet: "v", name: "Honey Chilly Potato", price: 249, desc: "Crisp golden bites glazed with sweet spice" },
+  { cat: "starter", diet: "v", name: "Crispy Veg", price: 249, desc: "Golden crunch, delicately seasoned" },
+  { cat: "starter", diet: "nv", name: "Chicken Clear Soup", price: 149, desc: "Light broth, delicate and soothing" },
+  { cat: "starter", diet: "nv", name: "Hot & Sour Soup (Chicken)", price: 149, desc: "Tangy spice with hearty chicken" },
+  { cat: "starter", diet: "nv", name: "Crispy Chicken", price: 249, desc: "Crunch outside, tender inside" },
+  { cat: "starter", diet: "nv", name: "Chicken Manchurian", price: 249, desc: "Classic Indo-Chinese comfort" },
+  { cat: "starter", diet: "nv", name: "Chicken 65", price: 249, desc: "Spicy, crispy, legendary", chef: true },
+
+  { cat: "mains", diet: "v", name: "Black Pepper Mushroom / Paneer", price: 249, desc: "Bold pepper warmth with tender textures" },
+  { cat: "mains", diet: "v", name: "Chilly Paneer", price: 249, desc: "Fiery wok magic, vibrant and addictive" },
+  { cat: "mains", diet: "v", name: "Garlic Basil Special", price: 249, desc: "Fragrant herbs with a garlicky punch" },
+  { cat: "mains", diet: "nv", name: "Black Pepper Chicken", price: 249, desc: "Juicy bites with a peppery punch" },
+  { cat: "mains", diet: "nv", name: "Chilly Chicken / Fish / Prawn", price: "299 / 349 / 399", desc: "Fiery wok magic, bursting with flavor", chef: true },
+  { cat: "mains", diet: "nv", name: "Garlic Basil Special (Chicken)", price: 349, desc: "Fragrant herbs with a garlicky punch" },
+  { cat: "mains", diet: "nv", name: "Kung Pao (Chicken)", price: 349, desc: "Nutty, spicy, and irresistible" },
+  { cat: "mains", diet: "nv", name: "Lemon Grass Chicken / Prawns", price: "349 / 449", desc: "Zesty lemongrass with smoky paprika" },
+  { cat: "mains", diet: "nv", name: "Thai Basil Chicken / Fish / Prawn", price: "349 / 399 / 449", desc: "Aromatic Thai flavors, rich and balanced" },
+  { cat: "mains", diet: "nv", name: "Ginger Soya Chicken", price: 299, desc: "Earthy soy with a ginger zing" },
+  { cat: "mains", diet: "nv", name: "Chicken in Teriyaki Sauce", price: 299, desc: "Sweet-savory Japanese glaze" },
+
+  { cat: "combos", diet: "nv", name: "Chilli with Garlic Fried Rice (Chicken / Fish / Prawns)", price: "399 / 449 / 499", desc: "Spicy, garlicky fried rice with a bold kick" },
+  { cat: "combos", diet: "nv", name: "Red / Green Curry Rice (Chicken / Fish / Prawns)", price: "399 / 449 / 499", desc: "Aromatic Thai curry with steamed rice" },
+
+  { cat: "rice", diet: "nv", name: "Schezwan Rice (Chicken)", price: 349, desc: "Fiery rice with a wok-tossed twist" },
+  { cat: "rice", diet: "nv", name: "Chilli with Garlic Fried Rice (Chicken / Fish / Prawns)", price: "399 / 449 / 499", desc: "Spicy, garlicky fried rice with a bold kick" },
+  { cat: "rice", diet: "nv", name: "Hakka Noodles (Chicken)", price: 349, desc: "Street-style stir-fried perfection" },
+  { cat: "rice", diet: "nv", name: "Schezwan Noodles (Chicken)", price: 349, desc: "Spicy, smoky, full of punch" },
+  { cat: "rice", diet: "nv", name: "Pad Thai Noodles (Chicken / Prawns)", price: "399 / 499", desc: "Savory, wok-tossed noodles with choice of protein" },
+  { cat: "rice", diet: "nv", name: "Red / Green Curry Rice (Chicken / Fish / Prawns)", price: "399 / 449 / 499", desc: "Aromatic Thai curry with steamed rice" },
+
+  { cat: "bites", diet: "v", name: "Fries", price: 149, desc: "Golden crisp, perfectly seasoned" },
+  { cat: "bites", diet: "v", name: "Spring Roll", price: 149, desc: "Delicate wrap with savory filling" },
+  { cat: "bites", diet: "v", name: "Maggi", price: 99, desc: "Comfort noodles, homely and nostalgic" },
+  { cat: "bites", diet: "v", name: "Momos", price: 149, desc: "Steamed pockets of flavor" },
+  { cat: "bites", diet: "v", name: "Grilled Cheese Sandwich", price: 199, desc: "Warm layers, smoky and satisfying" },
+  { cat: "bites", diet: "nv", name: "Momos (Chicken)", price: 199, desc: "Steamed pockets of flavor" },
+  { cat: "bites", diet: "nv", name: "Chicken Nuggets", price: 199, desc: "Tender bites, crisp and golden" },
+  { cat: "bites", diet: "nv", name: "Grilled Sandwich (Chicken)", price: 249, desc: "Warm layers, smoky and satisfying" },
+
+  { cat: "beverages", diet: "v", name: "Tea", price: 30, desc: "Classic comfort in a cup" },
+  { cat: "beverages", diet: "v", name: "Coffee (Espresso / Cappuccino / Latte)", price: "99 / 149 / 199", desc: "Bold brew, pure energy" },
+  { cat: "beverages", diet: "v", name: "Cold Coffee", price: 149, desc: "Refreshing & chilled" },
+  { cat: "beverages", diet: "v", name: "Milk Shake", price: 149, desc: "Creamy chill, sweet indulgence" },
+  { cat: "beverages", diet: "v", name: "Fresh Lime Soda with a twist", price: 99, desc: "Zesty and refreshing" },
+  { cat: "beverages", diet: "v", name: "Fruit Juice", price: 99, desc: "Refreshing fruit, ready to sip" },
+  { cat: "beverages", diet: "v", name: "Packaged Water", price: 20, desc: "Pure hydration, anytime" },
+
+  { cat: "desserts", diet: "v", name: "Walnut Brownie with Vanilla Ice Cream", price: 199, desc: "Warm, rich and gooey" },
+  { cat: "desserts", diet: "v", name: "Hot Gulab Jamun with Ice Cream", price: 149, desc: "Sweet warmth meets cool cream" },
+  { cat: "desserts", diet: "v", name: "Pancake with Chocolate Syrup & Vanilla Ice Cream", price: 149, desc: "Fluffy, indulgent and sweet" },
+];
