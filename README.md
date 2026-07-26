@@ -17,31 +17,48 @@ api/
   session.js      Reports whether the current visitor is logged in
   _lib/
     seed.js       Default menu + category list (seeds the DB on first run)
-    store.js      Redis read/write + validation
+    store.js      Postgres read/write + validation
     auth.js       Password check + HMAC-signed session cookie
+supabase/
+  schema.sql      menu_items table definition
+scripts/
+  migrate.mjs     Applies schema.sql to the database
 ```
+
+## Database (Supabase Postgres)
+
+The menu lives in a single `menu_items` table. At runtime the API talks to
+Supabase over the **REST API** (`SUPABASE_URL` + `SUPABASE_SECRET_KEY`), which
+works reliably from serverless. The direct Postgres connection is only used once
+to create the table.
+
+1. In Supabase → **Project Settings → API**: copy `SUPABASE_URL` and the
+   **secret** key (`sb_secret_...`).
+2. Create the table once — either `node scripts/migrate.mjs` (needs `DATABASE_URL`
+   in `.env.local`), or paste `supabase/schema.sql` into the Supabase SQL Editor.
+3. The first `GET /api/menu` seeds the table with the current menu.
 
 ## One-time setup on Vercel
 
 1. **Import the repo** into Vercel (or run `vercel` from the CLI).
-2. **Add storage:** Vercel dashboard → *Storage* → create an **Upstash Redis** (KV)
-   database and connect it to the project. This auto-adds `KV_REST_API_URL` and
-   `KV_REST_API_TOKEN`.
-3. **Add two environment variables** (Project → Settings → Environment Variables):
+2. **Add environment variables** (Project → Settings → Environment Variables):
+   - `SUPABASE_URL` and `SUPABASE_SECRET_KEY`
    - `ADMIN_PASSWORD` — the password you'll use to log in.
    - `SESSION_SECRET` — any long random string (e.g. `openssl rand -base64 32`).
-4. **Redeploy.** Visit `/` for the menu and `/admin` for the dashboard.
-
-The first request seeds the database with the current menu, so nothing is lost.
+3. **Redeploy.** Visit `/` for the menu and `/admin` for the dashboard.
 
 ## Local development
 
 ```bash
 npm install
-vercel env pull .env.local   # pulls KV_* from Vercel
-# add ADMIN_PASSWORD and SESSION_SECRET to .env.local
-vercel dev                   # serves the site + API at http://localhost:3000
+# put SUPABASE_URL, SUPABASE_SECRET_KEY, ADMIN_PASSWORD, SESSION_SECRET
+# (and DATABASE_URL for the migration) in .env.local
+node scripts/migrate.mjs      # create the menu_items table (one time)
+node dev-server.mjs           # serves the site + API at http://localhost:3000
 ```
+
+Without Supabase env vars, local dev falls back to an in-memory store so the app
+still runs (data is not persisted).
 
 ## Notes
 
