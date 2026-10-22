@@ -1,5 +1,4 @@
-import { getMenu, addItem, updateItem, deleteItem } from "./_lib/store.js";
-import { SECTIONS } from "./_lib/seed.js";
+import { getMenu, addItem, updateItem, deleteItem, getSections } from "./_lib/store.js";
 import { isAuthed } from "./_lib/auth.js";
 
 export default async function handler(req, res) {
@@ -8,10 +7,10 @@ export default async function handler(req, res) {
 
     // Public read.
     if (method === "GET") {
-      const items = await getMenu();
+      const [items, sections] = await Promise.all([getMenu(), getSections()]);
       // Menu changes rarely; let the CDN cache but revalidate quickly.
       res.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=300");
-      return res.status(200).json({ items, sections: SECTIONS });
+      return res.status(200).json({ items, sections });
     }
 
     // Everything below mutates — require an admin session.

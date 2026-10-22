@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { SEED_MENU, SECTIONS } from "./seed.js";
 
 const TABLE = "menu_items";
+const CAT_TABLE = "categories";
 
 // ---------------------------------------------------------------------------
 // Row <-> item mapping.
@@ -39,18 +40,40 @@ function toRow(input) {
   };
 }
 
-function validCategory(cat) {
-  return SECTIONS.some((s) => s.key === cat);
-}
-
 function validateRow(row) {
   if (!row.name) throw badRequest("Name is required.");
-  if (!validCategory(row.cat)) throw badRequest("Invalid category.");
   if (!row.price) throw badRequest("Price is required.");
+}
+
+async function assertCategoryExists(cat) {
+  const sections = await getSections();
+  if (!sections.some((s) => s.key === cat)) throw badRequest("Invalid category.");
 }
 
 function seedRows() {
   return SEED_MENU.map((m) => toRow({ ...m, desc: m.desc }));
+}
+
+// ---------------------------------------------------------------------------
+// Category (section) mapping + helpers.
+//   DB row:  { key, label, ico, position }
+//   API:     { key, label, ico }
+// ---------------------------------------------------------------------------
+function toSection(row) {
+  return { key: row.key, label: row.label, ico: row.ico || "" };
+}
+
+function slugify(s) {
+  return String(s || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+}
+
+function seedCatRows() {
+  return SECTIONS.map((s, i) => ({ key: s.key, label: s.label, ico: s.ico || "", position: i + 1 }));
 }
 
 // ---------------------------------------------------------------------------
@@ -63,10 +86,25 @@ function makeMemoryBackend() {
   );
   let rows = [];
   let seq = 1;
+  let catRows = seedCatRows();
+  let catSeq = catRows.length + 1;
   const clone = (v) => JSON.parse(JSON.stringify(v));
   return {
     async list() {
       return clone(rows);
+    },
+    async listCats() {
+      return clone([...catRows].sort((a, b) => a.position - b.position));
+    },
+    async insertCat(row) {
+      const created = { position: catSeq++, ...row };
+      catRows.push(created);
+      return clone(created);
+    },
+    async removeCat(key) {
+      const before = catRows.length;
+      catRows = catRows.filter((r) => r.key !== key);
+      return catRows.length < before;
     },
     async seed(newRows) {
       rows = newRows.map((r) => ({ id: randomUUID(), position: seq++, ...r }));
@@ -101,11 +139,32 @@ function makeSupabaseBackend(url, key) {
       throw e;
     }
   };
+  const catCols = "key, label, ico, position";
   return {
     async list() {
       const { data, error } = await db.from(TABLE).select(cols).order("position", { ascending: true });
       guard(error);
       return data || [];
+    },
+    async listCats() {
+      const { data, error } = await db.from(CAT_TABLE).select(catCols).order("position", { ascending: true });
+      guard(error);
+      return data || [];
+    },
+    async seedCats(newRows) {
+      const { data, error } = await db.from(CAT_TABLE).insert(newRows).select(catCols);
+      guard(error);
+      return data || [];
+    },
+    async insertCat(row) {
+      const { data, error } = await db.from(CAT_TABLE).insert(row).select(catCols).single();
+      guard(error);
+      return data;
+    },
+    async removeCat(key) {
+      const { data, error } = await db.from(CAT_TABLE).delete().eq("key", key).select("key");
+      guard(error);
+      return (data || []).length > 0;
     },
     async seed(newRows) {
       const { data, error } = await db.from(TABLE).insert(newRows).select(cols);
@@ -158,6 +217,7 @@ export async function getMenu() {
 export async function addItem(input) {
   const row = toRow(input);
   validateRow(row);
+  await assertCategoryExists(row.cat);
   await getMenu(); // ensure the table is seeded before the first manual add
   const created = await backend().insert(row);
   return toItem(created);
@@ -166,9 +226,45 @@ export async function addItem(input) {
 export async function updateItem(id, input) {
   const row = toRow(input);
   validateRow(row);
+  await assertCategoryExists(row.cat);
   const updated = await backend().update(id, row);
   if (!updated) throw notFound("Item not found.");
   return toItem(updated);
+}
+
+// ---------------------------------------------------------------------------
+// Categories (sections) — persisted and managed from the dashboard.
+// ---------------------------------------------------------------------------
+export async function getSections() {
+  const be = backend();
+  let rows = await be.listCats();
+  if (!rows.length && be.seedCats) rows = await be.seedCats(seedCatRows());
+  return rows.map(toSection);
+}
+
+export async function addCategory(input) {
+  const label = String(input && input.label != null ? input.label : "").trim();
+  if (!label) throw badRequest("Category name is required.");
+  const key = String(input && input.key ? input.key : slugify(label)) || slugify(label);
+  if (!key) throw badRequest("Category name must contain letters or numbers.");
+  const ico = String(input && input.ico != null ? input.ico : "").trim().slice(0, 8);
+
+  const existing = await getSections();
+  if (existing.some((s) => s.key === key)) throw badRequest("A category with this name already exists.");
+
+  const created = await backend().insertCat({ key, label, ico });
+  return toSection(created);
+}
+
+export async function deleteCategory(key) {
+  if (!key) throw badRequest("Category key is required.");
+  const items = await getMenu();
+  if (items.some((it) => it.cat === key)) {
+    throw badRequest("This category still has menu items. Move or delete them first.");
+  }
+  const ok = await backend().removeCat(key);
+  if (!ok) throw notFound("Category not found.");
+  return { key };
 }
 
 export async function deleteItem(id) {
