@@ -8,6 +8,8 @@ export const SECTIONS = [
   { key: "bites", label: "Quick Bites", ico: "🍟" },
   { key: "beverages", label: "Beverages", ico: "🥤" },
   { key: "desserts", label: "Desserts", ico: "🍰" },
+  { key: "north-indian-tandoor", label: "North-Indian & Tandoor", ico: "🍢" },
+  { key: "asian", label: "Asian", ico: "🥢" },
 ];
 
 export const SEED_MENU = [
