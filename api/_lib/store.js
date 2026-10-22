@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
-import { SEED_MENU, SECTIONS } from "./seed.js";
+import { SEED_MENU, SECTIONS, MENUS } from "./seed.js";
 
 const TABLE = "menu_items";
 const CAT_TABLE = "categories";
@@ -55,12 +55,15 @@ function seedRows() {
 }
 
 // ---------------------------------------------------------------------------
-// Category (section) mapping + helpers.
-//   DB row:  { key, label, ico, position }
-//   API:     { key, label, ico }
+// Category (section / sub-menu) mapping + helpers.
+//   DB row:  { key, label, ico, menu, position }
+//   API:     { key, label, ico, menu }
+// "menu" is the main-menu this sub-menu belongs to (e.g. "north-indian").
 // ---------------------------------------------------------------------------
+const DEFAULT_MENU = (MENUS[0] && MENUS[0].key) || "general";
+
 function toSection(row) {
-  return { key: row.key, label: row.label, ico: row.ico || "" };
+  return { key: row.key, label: row.label, ico: row.ico || "", menu: row.menu || DEFAULT_MENU };
 }
 
 function slugify(s) {
@@ -73,7 +76,18 @@ function slugify(s) {
 }
 
 function seedCatRows() {
-  return SECTIONS.map((s, i) => ({ key: s.key, label: s.label, ico: s.ico || "", position: i + 1 }));
+  return SECTIONS.map((s, i) => ({
+    key: s.key,
+    label: s.label,
+    ico: s.ico || "",
+    menu: s.menu || DEFAULT_MENU,
+    position: i + 1,
+  }));
+}
+
+// Main menus are a fixed, code-defined list (not stored in the DB).
+export function getMenus() {
+  return MENUS.map((m) => ({ key: m.key, label: m.label, ico: m.ico || "" }));
 }
 
 // ---------------------------------------------------------------------------
@@ -139,7 +153,7 @@ function makeSupabaseBackend(url, key) {
       throw e;
     }
   };
-  const catCols = "key, label, ico, position";
+  const catCols = "key, label, ico, menu, position";
   return {
     async list() {
       const { data, error } = await db.from(TABLE).select(cols).order("position", { ascending: true });
@@ -248,11 +262,13 @@ export async function addCategory(input) {
   const key = String(input && input.key ? input.key : slugify(label)) || slugify(label);
   if (!key) throw badRequest("Category name must contain letters or numbers.");
   const ico = String(input && input.ico != null ? input.ico : "").trim().slice(0, 8);
+  const menu = String(input && input.menu ? input.menu : DEFAULT_MENU).trim() || DEFAULT_MENU;
+  if (!MENUS.some((m) => m.key === menu)) throw badRequest("Invalid main menu.");
 
   const existing = await getSections();
   if (existing.some((s) => s.key === key)) throw badRequest("A category with this name already exists.");
 
-  const created = await backend().insertCat({ key, label, ico });
+  const created = await backend().insertCat({ key, label, ico, menu });
   return toSection(created);
 }
 

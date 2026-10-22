@@ -1,4 +1,4 @@
-import { getSections, addCategory, deleteCategory } from "./_lib/store.js";
+import { getSections, addCategory, deleteCategory, getMenus } from "./_lib/store.js";
 import { isAuthed } from "./_lib/auth.js";
 
 export default async function handler(req, res) {
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     if (method === "GET") {
       const sections = await getSections();
       res.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=300");
-      return res.status(200).json({ sections });
+      return res.status(200).json({ sections, menus: getMenus() });
     }
 
     // Everything below mutates — require an admin session.

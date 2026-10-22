@@ -60,8 +60,25 @@ node dev-server.mjs           # serves the site + API at http://localhost:3000
 Without Supabase env vars, local dev falls back to an in-memory store so the app
 still runs (data is not persisted).
 
+## Reseeding after a menu change
+
+The DB only seeds itself when the tables are **empty**, so editing `api/_lib/seed.js`
+does not update a database that already has data. To wipe and reload it from the seed:
+
+```bash
+node scripts/reseed.mjs          # asks to confirm, then clears + reloads
+node scripts/reseed.mjs --yes    # skip the prompt (for CI)
+```
+
+It runs `supabase/schema.sql` first (adding any new columns), then replaces every row
+in `categories` and `menu_items` with the current seed. Needs `DIRECT_URL` or
+`DATABASE_URL` in `.env.local`.
+
 ## Notes
 
+- Menu structure is three tiers: **main menu** (North Indian / Asian / General) →
+  **sub-menu** (category) → **item**. Main menus are fixed in `api/_lib/seed.js`
+  (`MENUS`); each sub-menu (`SECTIONS`) has a `menu` key tying it to one main menu.
 - The session cookie is `HttpOnly`, `Secure`, `SameSite=Strict`, and expires after 12 hours.
-- Categories (Starters, Mains, …) are fixed in `api/_lib/seed.js`. Add a new one there
-  and it appears in both the dashboard and the public menu automatically.
+- Sub-menus are managed from the dashboard (or seeded from `api/_lib/seed.js`); adding one
+  there lets you pick its main menu, and it appears on both the dashboard and public menu.

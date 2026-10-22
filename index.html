@@ -131,8 +131,29 @@
   .chip.active .dot.v::after { background:#fff; }
   .chip.active .dot.nv::after { background:#fff; }
 
-  /* ---------- Sections ---------- */
+  .filters { flex-direction: column; gap: 10px; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+  /* ---------- Main-menu groups ---------- */
+  .menu-group { margin-bottom: 46px; }
+  .menu-group.hide { display: none; }
+  .menu-title {
+    display: flex; align-items: center; gap: 14px; justify-content: center;
+    font-family: "Georgia", serif; font-weight: 800; letter-spacing: .04em;
+    font-size: clamp(22px, 5vw, 34px); color: var(--red);
+    text-transform: uppercase; text-align: center;
+    margin: 10px 0 26px; padding-bottom: 16px; position: relative;
+  }
+  .menu-title::after {
+    content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+    height: 3px; width: 120px; border-radius: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--red), var(--gold));
+  }
+  .menu-title .menu-ico { font-size: .9em; }
+
+  /* ---------- Sections (sub-menus) ---------- */
   .section { margin-bottom: 40px; }
+  .section.hide { display: none; }
   .section-title {
     display: flex; align-items: center; gap: 12px;
     font-size: clamp(18px, 4vw, 24px); font-weight: 800; letter-spacing: 0.02em;
@@ -309,20 +330,16 @@
       <div class="brand-top">THE HOUSE OF</div>
       <div class="brand-mid">CHILI N' CURRY</div>
       <div class="diamond">◆</div>
-      <div class="tagline">Bold Flavors · Warm Memories</div>
+      <div class="tagline">Good Food · Good Mood</div>
     </header>
 
     <nav class="filters" id="filters">
-      <button class="chip active" data-filter="all">All</button>
-      <button class="chip" data-filter="veg"><span class="dot v"></span>Veg</button>
-      <button class="chip" data-filter="nonveg"><span class="dot nv"></span>Non-Veg</button>
-      <button class="chip" data-filter="cat:starter">Starters</button>
-      <button class="chip" data-filter="cat:mains">Mains</button>
-      <button class="chip" data-filter="cat:combos">Combos</button>
-      <button class="chip" data-filter="cat:rice">Rice / Noodles</button>
-      <button class="chip" data-filter="cat:bites">Quick Bites</button>
-      <button class="chip" data-filter="cat:beverages">Beverages</button>
-      <button class="chip" data-filter="cat:desserts">Desserts</button>
+      <div class="filter-row" id="menuTabs"></div>
+      <div class="filter-row" id="dietTabs">
+        <button class="chip active" data-diet="all">All</button>
+        <button class="chip" data-diet="v"><span class="dot v"></span>Veg</button>
+        <button class="chip" data-diet="nv"><span class="dot nv"></span>Non-Veg</button>
+      </div>
     </nav>
 
     <div id="menu"></div>
@@ -333,15 +350,15 @@
       <div class="contact-grid">
         <div class="cell">
           <strong>Call to Order</strong>
-          <span>7979072778<br />9987930956</span>
+          <span>9987930936<br />7570072778</span>
         </div>
         <div class="cell">
           <strong>Visit Us</strong>
-          <span>Shop No. 7, Dynamic Grandeur,<br />Wadachiwadi Road, Undri, Pune</span>
+          <span>Shop C-07, Dynamic Grandeur,<br />Wadachiwadi, Undri, Pune – 411060</span>
         </div>
         <div class="cell">
-          <strong>Also Available</strong>
-          <span>Dine-In &amp;<br />Takeaway</span>
+          <strong>Open Daily</strong>
+          <span>11:30 am – 11:30 pm<br />Monday – Sunday</span>
         </div>
       </div>
       <p class="fineprint">Prices in INR. Taxes extra as applicable.</p>
@@ -353,9 +370,15 @@
 
 <script>
   // Menu data is loaded live from the API (/api/menu).
-  // diet: "v" veg, "nv" non-veg | price: number OR string (multi-protein options)
+  // Three tiers:  MENUS (main)  →  SECTIONS (sub-menu, each has a `menu` key)  →  MENU (items, each has a `cat`).
+  // diet: "v" veg, "nv" non-veg | price: number OR string (multi-option)
   let MENU = [];
   let SECTIONS = [];
+  let MENUS = [];
+
+  // Active filters.
+  let activeMenu = "all";
+  let activeDiet = "all";
 
   const menuEl = document.getElementById("menu");
 
@@ -370,40 +393,74 @@
     return `<span class="multi">₹${escapeHTML(p)}</span>`;
   }
 
+  // Render main menu → sub-menu → items.
   function render() {
     menuEl.innerHTML = "";
-    SECTIONS.forEach(sec => {
-      const items = MENU.filter(m => m.cat === sec.key);
-      if (!items.length) return;
-      const section = document.createElement("section");
-      section.className = "section";
-      section.dataset.cat = sec.key;
-      section.innerHTML = `
-        <h2 class="section-title reveal">
-          <span class="ico">${sec.ico}</span>${sec.label}
-          <span class="rupee">₹</span>
+    // Fall back to a single implicit menu if the API didn't send any.
+    const menus = MENUS.length ? MENUS : [{ key: "all", label: "Menu", ico: "🍽️" }];
+
+    menus.forEach(menu => {
+      const menuSections = MENUS.length
+        ? SECTIONS.filter(s => (s.menu || "") === menu.key)
+        : SECTIONS;
+      // Keep only sub-menus that actually have items.
+      const withItems = menuSections.filter(sec => MENU.some(m => m.cat === sec.key));
+      if (!withItems.length) return;
+
+      const group = document.createElement("section");
+      group.className = "menu-group";
+      group.dataset.menu = menu.key;
+      group.innerHTML = `
+        <h2 class="menu-title reveal">
+          <span class="menu-ico">${escapeHTML(menu.ico || "")}</span>${escapeHTML(menu.label)}
         </h2>`;
-      items.forEach((m, i) => {
-        const el = document.createElement("div");
-        el.className = "item reveal";
-        el.dataset.cat = m.cat;
-        el.dataset.diet = m.diet;
-        el.style.transitionDelay = Math.min(i * 0.05, 0.4) + "s";
-        el.innerHTML = `
-          <span class="mark ${m.diet}"></span>
-          <div class="item-body">
-            <div class="item-head">
-              <span class="item-name">${escapeHTML(m.name)}${m.chef ? '<span class="chef">Chef&#39;s Pick</span>' : ''}</span>
-              <span class="dots"></span>
-              <span class="price">${priceHTML(m.price)}</span>
-            </div>
-            ${m.desc ? `<p class="desc">${escapeHTML(m.desc)}</p>` : ""}
-          </div>`;
-        section.appendChild(el);
+
+      withItems.forEach(sec => {
+        const items = MENU.filter(m => m.cat === sec.key);
+        const section = document.createElement("div");
+        section.className = "section";
+        section.dataset.cat = sec.key;
+        section.dataset.menu = menu.key;
+        section.innerHTML = `
+          <h3 class="section-title reveal">
+            <span class="ico">${escapeHTML(sec.ico || "")}</span>${escapeHTML(sec.label)}
+            <span class="rupee">₹</span>
+          </h3>`;
+        items.forEach((m, i) => {
+          const el = document.createElement("div");
+          el.className = "item reveal";
+          el.dataset.cat = m.cat;
+          el.dataset.menu = menu.key;
+          el.dataset.diet = m.diet;
+          el.style.transitionDelay = Math.min(i * 0.04, 0.3) + "s";
+          el.innerHTML = `
+            <span class="mark ${m.diet}"></span>
+            <div class="item-body">
+              <div class="item-head">
+                <span class="item-name">${escapeHTML(m.name)}${m.chef ? '<span class="chef">Chef&#39;s Pick</span>' : ''}</span>
+                <span class="dots"></span>
+                <span class="price">${priceHTML(m.price)}</span>
+              </div>
+              ${m.desc ? `<p class="desc">${escapeHTML(m.desc)}</p>` : ""}
+            </div>`;
+          section.appendChild(el);
+        });
+        group.appendChild(section);
       });
-      menuEl.appendChild(section);
+
+      menuEl.appendChild(group);
     });
     setupReveal();
+  }
+
+  // Build the main-menu tab row (All + one per menu).
+  function renderMenuTabs() {
+    const tabs = document.getElementById("menuTabs");
+    let html = `<button class="chip ${activeMenu === "all" ? "active" : ""}" data-menu="all">All</button>`;
+    html += MENUS.map(m =>
+      `<button class="chip ${activeMenu === m.key ? "active" : ""}" data-menu="${escapeHTML(m.key)}">${escapeHTML(m.ico || "")} ${escapeHTML(m.label)}</button>`
+    ).join("");
+    tabs.innerHTML = html;
   }
 
   // Reveal elements as they scroll into view
@@ -420,34 +477,45 @@
     document.querySelectorAll(".reveal").forEach(el => io.observe(el));
   }
 
-  function applyFilter(filter) {
-    const isCat = filter.startsWith("cat:");
-    const catKey = isCat ? filter.slice(4) : null;
+  function applyFilters() {
     let anyVisible = false;
-    document.querySelectorAll(".section").forEach(section => {
-      let visible = 0;
-      section.querySelectorAll(".item").forEach(item => {
-        let show;
-        if (filter === "all") show = true;
-        else if (filter === "veg") show = item.dataset.diet === "v";
-        else if (filter === "nonveg") show = item.dataset.diet === "nv";
-        else if (isCat) show = item.dataset.cat === catKey;
-        else show = true;
-        item.classList.toggle("hide", !show);
-        if (show) { visible++; anyVisible = true; }
+    document.querySelectorAll(".menu-group").forEach(group => {
+      const menuOk = activeMenu === "all" || group.dataset.menu === activeMenu;
+      let groupVisible = 0;
+      group.querySelectorAll(".section").forEach(section => {
+        let visible = 0;
+        section.querySelectorAll(".item").forEach(item => {
+          const show = menuOk && (activeDiet === "all" || item.dataset.diet === activeDiet);
+          item.classList.toggle("hide", !show);
+          if (show) visible++;
+        });
+        section.classList.toggle("hide", visible === 0);
+        groupVisible += visible;
       });
-      section.style.display = visible ? "" : "none";
+      group.classList.toggle("hide", groupVisible === 0);
+      if (groupVisible) anyVisible = true;
     });
     document.getElementById("empty").style.display = anyVisible ? "none" : "block";
   }
 
-  const filters = document.getElementById("filters");
-  filters.addEventListener("click", e => {
+  // Main-menu tabs.
+  document.getElementById("menuTabs").addEventListener("click", e => {
     const btn = e.target.closest(".chip");
     if (!btn) return;
-    filters.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    activeMenu = btn.dataset.menu;
+    renderMenuTabs();
+    applyFilters();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // Veg / Non-Veg tabs.
+  document.getElementById("dietTabs").addEventListener("click", e => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    activeDiet = btn.dataset.diet;
+    document.querySelectorAll("#dietTabs .chip").forEach(c => c.classList.remove("active"));
     btn.classList.add("active");
-    applyFilter(btn.dataset.filter);
+    applyFilters();
   });
 
   async function loadMenu() {
@@ -457,10 +525,10 @@
       const data = await res.json();
       MENU = Array.isArray(data.items) ? data.items : [];
       SECTIONS = Array.isArray(data.sections) ? data.sections : [];
+      MENUS = Array.isArray(data.menus) ? data.menus : [];
+      renderMenuTabs();
       render();
-      // Re-apply whichever filter is currently active.
-      const active = document.querySelector("#filters .chip.active");
-      if (active) applyFilter(active.dataset.filter);
+      applyFilters();
     } catch (err) {
       menuEl.innerHTML =
         '<p class="empty" style="display:block">Menu is taking a moment to load — please refresh.</p>';

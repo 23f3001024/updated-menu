@@ -75,6 +75,12 @@
   .count { color: var(--muted); font-size: 12.5px; margin-left: auto; }
 
   /* ---------- Items table ---------- */
+  .menu-block { margin-bottom: 34px; }
+  .menu-heading {
+    font-family: Georgia, serif; font-weight: 800; font-size: 19px; color: var(--red);
+    text-transform: uppercase; letter-spacing: .04em;
+    margin: 0 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--red);
+  }
   .group { margin-bottom: 26px; }
   .group-title {
     display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800;
@@ -119,10 +125,18 @@
   .checkbox label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 13.5px; font-weight: 500; color: var(--ink); }
 
   /* ---------- Categories modal ---------- */
-  .cat-add { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 4px; }
+  .cat-add { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 4px; flex-wrap: wrap; }
   .cat-add .field { margin-bottom: 0; }
   .cat-add .cat-ico { width: 72px; flex: 0 0 auto; }
-  .cat-add .cat-name { flex: 1; }
+  .cat-add .cat-name { flex: 1 1 160px; }
+  .cat-add .cat-menu { flex: 1 1 140px; }
+  .cat-add .cat-menu select { width: 100%; }
+  .cat-add .btn { flex: 0 0 auto; }
+  .cat-group-label {
+    font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--red); margin: 14px 2px 8px;
+  }
+  .cat-group-label:first-child { margin-top: 4px; }
   .cat-list { margin-top: 14px; max-height: 42vh; overflow-y: auto; }
   .cat-item {
     display: flex; align-items: center; gap: 10px; padding: 10px 12px;
@@ -251,12 +265,16 @@
           <input id="c-ico" maxlength="8" placeholder="🍢" />
         </div>
         <div class="field cat-name">
-          <label for="c-label">New category</label>
-          <input id="c-label" maxlength="60" placeholder="e.g. North-Indian & Tandoor" />
+          <label for="c-label">New sub-menu</label>
+          <input id="c-label" maxlength="60" placeholder="e.g. Tandoori Breads" />
+        </div>
+        <div class="field cat-menu">
+          <label for="c-menu">Main menu</label>
+          <select id="c-menu"></select>
         </div>
         <button type="submit" class="btn primary" id="catAddBtn">Add</button>
       </form>
-      <p class="hint">Icons are optional. A category can only be removed once it has no items.</p>
+      <p class="hint">Icons are optional. A sub-menu belongs to one main menu and can only be removed once it has no items.</p>
       <div id="catList" class="cat-list"></div>
       <div class="modal-actions">
         <button type="button" class="btn ghost" id="catCloseBtn">Done</button>
@@ -270,6 +288,10 @@
   const $ = (id) => document.getElementById(id);
   let SECTIONS = [];
   let ITEMS = [];
+  let MENUS = [];
+
+  function menuLabel(key) { const m = MENUS.find((x) => x.key === key); return m ? m.label : key; }
+  function sectionsForMenu(menuKey) { return SECTIONS.filter((s) => (s.menu || "") === menuKey); }
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
@@ -329,14 +351,30 @@
     const data = await api("/api/menu");
     ITEMS = data.items || [];
     SECTIONS = data.sections || [];
+    MENUS = data.menus || [];
     populateCategorySelects();
+    populateMenuSelect();
     renderList();
   }
 
+  // Build category <select> options grouped by main menu (optgroups).
+  function catOptionsGrouped() {
+    return MENUS.map((m) => {
+      const secs = sectionsForMenu(m.key);
+      if (!secs.length) return "";
+      const opts = secs.map((s) => `<option value="${esc(s.key)}">${esc(s.label)}</option>`).join("");
+      return `<optgroup label="${esc(m.label)}">${opts}</optgroup>`;
+    }).join("");
+  }
+
   function populateCategorySelects() {
-    const opts = SECTIONS.map((s) => `<option value="${esc(s.key)}">${esc(s.label)}</option>`).join("");
-    $("f-cat").innerHTML = opts;
-    $("catFilter").innerHTML = '<option value="">All categories</option>' + opts;
+    const grouped = catOptionsGrouped();
+    $("f-cat").innerHTML = grouped;
+    $("catFilter").innerHTML = '<option value="">All sub-menus</option>' + grouped;
+  }
+
+  function populateMenuSelect() {
+    $("c-menu").innerHTML = MENUS.map((m) => `<option value="${esc(m.key)}">${esc(m.label)}</option>`).join("");
   }
 
   /* ---------- List rendering ---------- */
@@ -360,26 +398,33 @@
       return;
     }
 
-    // Group by section order.
+    // Group by main menu → sub-menu order.
     let html = "";
-    SECTIONS.forEach((sec) => {
-      const rows = filtered.filter((it) => it.cat === sec.key);
-      if (!rows.length) return;
-      html += `<div class="group"><div class="group-title"><span>${esc(sec.ico || "")}</span>${esc(sec.label)} <span style="color:var(--muted);font-weight:600;font-size:12px">(${rows.length})</span></div>`;
-      rows.forEach((it) => {
-        html += `
-          <div class="row" data-id="${esc(it.id)}">
-            <span class="mark ${it.diet === "nv" ? "nv" : "v"}"></span>
-            <div class="body">
-              <div class="name">${esc(it.name)}${it.chef ? '<span class="chef">Chef’s Pick</span>' : ""}</div>
-              ${it.desc ? `<div class="meta">${esc(it.desc)}</div>` : ""}
-            </div>
-            <div class="price">${esc(priceText(it.price))}</div>
-            <div class="actions">
-              <button class="btn small ghost act-edit">Edit</button>
-              <button class="btn small danger act-del">Delete</button>
-            </div>
-          </div>`;
+    MENUS.forEach((menu) => {
+      const secs = sectionsForMenu(menu.key);
+      const menuCount = filtered.filter((it) => secs.some((s) => s.key === it.cat)).length;
+      if (!menuCount) return;
+      html += `<div class="menu-block"><div class="menu-heading">${esc(menu.ico || "")} ${esc(menu.label)}</div>`;
+      secs.forEach((sec) => {
+        const rows = filtered.filter((it) => it.cat === sec.key);
+        if (!rows.length) return;
+        html += `<div class="group"><div class="group-title"><span>${esc(sec.ico || "")}</span>${esc(sec.label)} <span style="color:var(--muted);font-weight:600;font-size:12px">(${rows.length})</span></div>`;
+        rows.forEach((it) => {
+          html += `
+            <div class="row" data-id="${esc(it.id)}">
+              <span class="mark ${it.diet === "nv" ? "nv" : "v"}"></span>
+              <div class="body">
+                <div class="name">${esc(it.name)}${it.chef ? '<span class="chef">Chef’s Pick</span>' : ""}</div>
+                ${it.desc ? `<div class="meta">${esc(it.desc)}</div>` : ""}
+              </div>
+              <div class="price">${esc(priceText(it.price))}</div>
+              <div class="actions">
+                <button class="btn small ghost act-edit">Edit</button>
+                <button class="btn small danger act-del">Delete</button>
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
       });
       html += `</div>`;
     });
@@ -470,10 +515,10 @@
   function renderCatList() {
     const list = $("catList");
     if (!SECTIONS.length) {
-      list.innerHTML = '<p class="empty-note">No categories yet — add one above.</p>';
+      list.innerHTML = '<p class="empty-note">No sub-menus yet — add one above.</p>';
       return;
     }
-    list.innerHTML = SECTIONS.map((s) => {
+    const catRow = (s) => {
       const count = ITEMS.filter((it) => it.cat === s.key).length;
       return `
         <div class="cat-item" data-key="${esc(s.key)}">
@@ -482,6 +527,11 @@
           <span class="c-count">${count} item${count === 1 ? "" : "s"}</span>
           <button class="btn small danger act-cat-del">Delete</button>
         </div>`;
+    };
+    list.innerHTML = MENUS.map((m) => {
+      const secs = sectionsForMenu(m.key);
+      if (!secs.length) return "";
+      return `<div class="cat-group-label">${esc(m.label)}</div>` + secs.map(catRow).join("");
     }).join("");
   }
 
@@ -500,7 +550,7 @@
     try {
       await api("/api/categories", {
         method: "POST",
-        body: JSON.stringify({ label, ico: $("c-ico").value.trim() }),
+        body: JSON.stringify({ label, ico: $("c-ico").value.trim(), menu: $("c-menu").value }),
       });
       $("c-label").value = "";
       $("c-ico").value = "";
